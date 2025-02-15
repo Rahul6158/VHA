@@ -176,23 +176,20 @@ if st.button("Predict All"):
     audio_file = generate_audio_file(diagnosis, medications, treatment_plan)
     st.audio(audio_file, format='audio/mp3')
 
-    # Ask user if they want a report
-    if st.checkbox("Do you want a detailed report?"):
-        name = st.text_input("Enter your name")
-        if name:
-            # Generate PDF report
-            pdf_file = generate_pdf_report(name, age, gender_text, diagnosis, medications, treatment_plan)
-            
-            # Display PDF in the app
-            st.subheader("Health Report Preview")
-            display_pdf(pdf_file)
+    # Generate PDF report
+    name = "User"  # Default name, can be customized
+    pdf_file = generate_pdf_report(name, age, gender_text, diagnosis, medications, treatment_plan)
+    
+    # Display PDF in the app
+    st.subheader("Health Report")
+    display_pdf(pdf_file)
 
-            # Provide download button for the PDF
-            with open(pdf_file, "rb") as f:
-                pdf_data = f.read()
-            b64 = base64.b64encode(pdf_data).decode()
-            href = f'<a href="data:application/pdf;base64,{b64}" download="health_report.pdf">Download PDF Report</a>'
-            st.markdown(href, unsafe_allow_html=True)
+    # Provide download button for the PDF
+    with open(pdf_file, "rb") as f:
+        pdf_data = f.read()
+    b64 = base64.b64encode(pdf_data).decode()
+    href = f'<a href="data:application/pdf;base64,{b64}" download="health_report.pdf">Download PDF Report</a>'
+    st.markdown(href, unsafe_allow_html=True)
 
 if show_evaluation:
     st.subheader("Model Evaluation")
