@@ -105,7 +105,8 @@ translations = {
         "accuracy_for_treatment_plan": "Accuracy for Treatment Plan",
         "generate_report": "Generate Report",
         "enter_name": "Enter your name",
-        "download_report": "Download PDF Report"
+        "download_report": "Download PDF Report",
+        "date": "Date"
     },
     "Telugu": {
         "title": "వ్యాప్త ఆరోగ్య ఫలితాన్వేషి",
@@ -128,7 +129,8 @@ translations = {
         "accuracy_for_treatment_plan": "చికిత్స ప్రణాళిక ఖచ్చితత్వం",
         "generate_report": "రిపోర్ట్ జనరేట్ చేయండి",
         "enter_name": "మీ పేరు నమోదు చేయండి",
-        "download_report": "PDF రిపోర్ట్ డౌన్లోడ్ చేయండి"
+        "download_report": "PDF రిపోర్ట్ డౌన్లోడ్ చేయండి",
+        "date": "తేదీ"
     },
     "Hindi": {
         "title": "व्यापक स्वास्थ्य परिणाम पूर्वानुमानक",
@@ -151,32 +153,25 @@ translations = {
         "accuracy_for_treatment_plan": "उपचार योजना के लिए सटीकता",
         "generate_report": "रिपोर्ट जनरेट करें",
         "enter_name": "अपना नाम दर्ज करें",
-        "download_report": "PDF रिपोर्ट डाउनलोड करें"
+        "download_report": "PDF रिपोर्ट डाउनलोड करें",
+        "date": "तारीख"
     }
 }
 
-if st.button(translate_text("predict_all", language)):
-    if not name:
-        st.warning(translate_text("enter_name", language))
-    else:
-        diagnosis, medications, treatment_plan = predict_all(age, gender_text, symptoms_selected, access_level_text, restricted_fields_text)
-        st.subheader(translate_text("predicted_diagnosis", language) + ": " + diagnosis)
-        st.subheader(translate_text("predicted_medications", language) + ": " + medications)
-        st.subheader(translate_text("predicted_treatment_plan", language) + ": " + treatment_plan)
+def translate_text(key, lang):
+    return translations[lang].get(key, key)
 
-        # Generate audio file
-        audio_file = generate_audio_file(diagnosis, medications, treatment_plan, language)
-        st.audio(audio_file, format='audio/mp3')
+# Streamlit app
+st.title(translate_text("title", language))
 
-        # Generate PDF report
-        pdf_file = generate_pdf_report(name, age, gender_text, diagnosis, medications, treatment_plan, language)
-        
-        # Provide download button for the PDF
-        with open(pdf_file, "rb") as f:
-            pdf_data = f.read()
-        b64 = base64.b64encode(pdf_data).decode()
-        href = f'<a href="data:application/pdf;base64,{b64}" download="health_report.pdf">{translate_text("download_report", language)}</a>'
-        st.markdown(href, unsafe_allow_html=True)
+# Sidebar for Model Evaluation
+with st.sidebar:
+    st.header(translate_text("model_evaluation", language))
+    show_evaluation = st.checkbox(translate_text("show_evaluation_metrics", language), value=False)
+
+    st.header(translate_text("about", language))
+    st.info(translate_text("info", language))
+    st.warning(translate_text("warning", language))
 
 # Input fields - all
 name = st.text_input(translate_text("enter_name", language))  # Ask for the user's name
@@ -203,14 +198,24 @@ def generate_pdf_report(name, age, gender, diagnosis, medications, treatment_pla
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", size=12)
+    
+    # Add title
     pdf.cell(200, 10, txt=translate_text("title", lang), ln=True, align='C')
+    
+    # Add user details
     pdf.cell(200, 10, txt=f"{translate_text('enter_name', lang)}: {name}", ln=True, align='L')
     pdf.cell(200, 10, txt=f"{translate_text('enter_age', lang)}: {age}", ln=True, align='L')
     pdf.cell(200, 10, txt=f"{translate_text('select_gender', lang)}: {gender}", ln=True, align='L')
+    
+    # Add predictions
     pdf.cell(200, 10, txt=f"{translate_text('predicted_diagnosis', lang)}: {diagnosis}", ln=True, align='L')
     pdf.cell(200, 10, txt=f"{translate_text('predicted_medications', lang)}: {medications}", ln=True, align='L')
     pdf.cell(200, 10, txt=f"{translate_text('predicted_treatment_plan', lang)}: {treatment_plan}", ln=True, align='L')
-    pdf.cell(200, 10, txt=f"Date: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", ln=True, align='L')
+    
+    # Add date
+    pdf.cell(200, 10, txt=f"{translate_text('date', lang)}: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", ln=True, align='L')
+    
+    # Save the PDF
     pdf.output("health_report.pdf")
     return "health_report.pdf"
 
@@ -250,36 +255,31 @@ if st.button(translate_text("predict_all", language)):
         st.subheader(translate_text("predicted_medications", language) + ": " + medications)
         st.subheader(translate_text("predicted_treatment_plan", language) + ": " + treatment_plan)
 
-        # Generate audio file
+# Generate audio file
         audio_file = generate_audio_file(diagnosis, medications, treatment_plan, language)
         st.audio(audio_file, format='audio/mp3')
 
         # Generate PDF report
-        pdf_file = generate_pdf_report(name, age, gender_text, diagnosis, medications, treatment_plan, language)
-        
-        # Provide download button for the PDF
-        with open(pdf_file, "rb") as f:
-            pdf_data = f.read()
-        b64 = base64.b64encode(pdf_data).decode()  # Corrected indentation
-        href = f'<a href="data:application/pdf;base64,{b64}" download="health_report.pdf">{translate_text("download_report", language)}</a>'
-        st.markdown(href, unsafe_allow_html=True)
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font("Arial", size=12)
 
-if show_evaluation:
-    st.subheader(translate_text("model_evaluation", language))
-    a = random.randint(80, 96)
-    b = random.randint(80, 96)
-    c = random.randint(75, 80)
-    # Diagnosis evaluation
-    y_pred_diagnosis = best_model_diagnosis.predict(X_test_scaled)
-    accuracy_diagnosis = accuracy_score(y_test_diagnosis, y_pred_diagnosis)
-    st.write(translate_text("accuracy_for_diagnosis", language) + f": {a}%")
+        pdf.cell(200, 10, txt="Health Prediction Report", ln=True, align='C')
+        pdf.ln(10)
 
-    # Medications evaluation
-    y_pred_medications = best_model_medications.predict(X_test_scaled)
-    accuracy_medications = accuracy_score(y_test_medications, y_pred_medications)
-    st.write(translate_text("accuracy_for_medications", language) + f": {b}%")
+        pdf.cell(200, 10, txt=f"Diagnosis: {diagnosis}", ln=True)
+        pdf.cell(200, 10, txt=f"Medications: {medications}", ln=True)
+        pdf.cell(200, 10, txt=f"Treatment Plan: {treatment_plan}", ln=True)
+        pdf.ln(10)
 
-    # Treatment Plan evaluation
-    y_pred_treatment_plan = best_model_treatment_plan.predict(X_test_scaled)
-    accuracy_treatment_plan = accuracy_score(y_test_treatment_plan, y_pred_treatment_plan)
-    st.write(translate_text("accuracy_for_treatment_plan", language) + f": {c}%")
+        pdf_file = "health_prediction_report.pdf"
+        pdf.output(pdf_file)
+
+        # Provide download link for the PDF
+        with open(pdf_file, "rb") as file:
+            st.download_button(
+                label="Download Health Report",
+                data=file,
+                file_name=pdf_file,
+                mime="application/pdf"
+            )
