@@ -100,6 +100,7 @@ with st.sidebar:
     st.warning("Disclaimer: This is a demonstration using synthetic data. Do not use these results for actual medical decisions. Always consult a healthcare professional for any medical advice.")
 
 # Input fields - all
+name = st.text_input("Enter your name")  # Ask for the user's name
 age = st.number_input("Enter Age", min_value=0, max_value=120, value=30)
 gender_text = st.selectbox("Select Gender", options=label_encoders['Gender'].inverse_transform(df['Gender'].unique()), index=0)
 symptoms_selected = st.multiselect("Select Symptoms", options=df.columns[11:])
@@ -128,13 +129,6 @@ def generate_pdf_report(name, age, gender, diagnosis, medications, treatment_pla
     pdf.cell(200, 10, txt=f"Date: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", ln=True, align='L')
     pdf.output("health_report.pdf")
     return "health_report.pdf"
-
-# Function to display PDF in the app
-def display_pdf(file_path):
-    with open(file_path, "rb") as f:
-        base64_pdf = base64.b64encode(f.read()).decode('utf-8')
-    pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="700" height="1000" type="application/pdf"></iframe>'
-    st.markdown(pdf_display, unsafe_allow_html=True)
 
 # Function to predict all outcomes
 def predict_all(age, gender_text, symptoms_selected, access_level_text, restricted_fields_text):
@@ -166,30 +160,28 @@ def predict_all(age, gender_text, symptoms_selected, access_level_text, restrict
     return predicted_diagnosis, predicted_data_source, predicted_medications, predicted_treatment_plan
 
 if st.button("Predict All"):
-    diagnosis, data_source, medications, treatment_plan = predict_all(age, gender_text, symptoms_selected, access_level_text, restricted_fields_text)
-    st.subheader(f"Predicted Diagnosis: {diagnosis}")
-    st.subheader(f"Predicted Data Source: {data_source}")
-    st.subheader(f"Predicted Medications: {medications}")
-    st.subheader(f"Predicted Treatment Plan: {treatment_plan}")
+    if not name:
+        st.warning("Please enter your name to generate the report.")
+    else:
+        diagnosis, data_source, medications, treatment_plan = predict_all(age, gender_text, symptoms_selected, access_level_text, restricted_fields_text)
+        st.subheader(f"Predicted Diagnosis: {diagnosis}")
+        st.subheader(f"Predicted Data Source: {data_source}")
+        st.subheader(f"Predicted Medications: {medications}")
+        st.subheader(f"Predicted Treatment Plan: {treatment_plan}")
 
-    # Generate audio file
-    audio_file = generate_audio_file(diagnosis, medications, treatment_plan)
-    st.audio(audio_file, format='audio/mp3')
+        # Generate audio file
+        audio_file = generate_audio_file(diagnosis, medications, treatment_plan)
+        st.audio(audio_file, format='audio/mp3')
 
-    # Generate PDF report
-    name = "User"  # Default name, can be customized
-    pdf_file = generate_pdf_report(name, age, gender_text, diagnosis, medications, treatment_plan)
-    
-    # Display PDF in the app
-    st.subheader("Health Report")
-    display_pdf(pdf_file)
-
-    # Provide download button for the PDF
-    with open(pdf_file, "rb") as f:
-        pdf_data = f.read()
-    b64 = base64.b64encode(pdf_data).decode()
-    href = f'<a href="data:application/pdf;base64,{b64}" download="health_report.pdf">Download PDF Report</a>'
-    st.markdown(href, unsafe_allow_html=True)
+        # Generate PDF report
+        pdf_file = generate_pdf_report(name, age, gender_text, diagnosis, medications, treatment_plan)
+        
+        # Provide download button for the PDF
+        with open(pdf_file, "rb") as f:
+            pdf_data = f.read()
+        b64 = base64.b64encode(pdf_data).decode()
+        href = f'<a href="data:application/pdf;base64,{b64}" download="health_report.pdf">Download PDF Report</a>'
+        st.markdown(href, unsafe_allow_html=True)
 
 if show_evaluation:
     st.subheader("Model Evaluation")
