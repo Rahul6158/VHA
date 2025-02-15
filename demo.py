@@ -104,7 +104,7 @@ translations = {
         "accuracy_for_medications": "Accuracy for Medications",
         "accuracy_for_treatment_plan": "Accuracy for Treatment Plan",
         "generate_report": "Generate Report",
-        "enter_name": "Enter your name",
+        "enter_name": "name",
         "download_report": "Download PDF Report"
     },
     "Telugu": {
