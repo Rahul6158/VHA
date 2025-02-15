@@ -155,20 +155,28 @@ translations = {
     }
 }
 
-def translate_text(key, lang):
-    return translations[lang].get(key, key)
+if st.button(translate_text("predict_all", language)):
+    if not name:
+        st.warning(translate_text("enter_name", language))
+    else:
+        diagnosis, medications, treatment_plan = predict_all(age, gender_text, symptoms_selected, access_level_text, restricted_fields_text)
+        st.subheader(translate_text("predicted_diagnosis", language) + ": " + diagnosis)
+        st.subheader(translate_text("predicted_medications", language) + ": " + medications)
+        st.subheader(translate_text("predicted_treatment_plan", language) + ": " + treatment_plan)
 
-# Streamlit app
-st.title(translate_text("title", language))
+        # Generate audio file
+        audio_file = generate_audio_file(diagnosis, medications, treatment_plan, language)
+        st.audio(audio_file, format='audio/mp3')
 
-# Sidebar for Model Evaluation
-with st.sidebar:
-    st.header(translate_text("model_evaluation", language))
-    show_evaluation = st.checkbox(translate_text("show_evaluation_metrics", language), value=False)
-
-    st.header(translate_text("about", language))
-    st.info(translate_text("info", language))
-    st.warning(translate_text("warning", language))
+        # Generate PDF report
+        pdf_file = generate_pdf_report(name, age, gender_text, diagnosis, medications, treatment_plan, language)
+        
+        # Provide download button for the PDF
+        with open(pdf_file, "rb") as f:
+            pdf_data = f.read()
+        b64 = base64.b64encode(pdf_data).decode()
+        href = f'<a href="data:application/pdf;base64,{b64}" download="health_report.pdf">{translate_text("download_report", language)}</a>'
+        st.markdown(href, unsafe_allow_html=True)
 
 # Input fields - all
 name = st.text_input(translate_text("enter_name", language))  # Ask for the user's name
