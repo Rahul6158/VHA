@@ -182,47 +182,48 @@ access_level_text = st.selectbox(translate_text("select_access_level", language)
 restricted_fields_text = st.selectbox(translate_text("select_restricted_fields", language), options=label_encoders['Restricted_Fields'].inverse_transform(df['Restricted_Fields'].unique()), index=0)
 
 # Generate audio file
-        audio_file = generate_audio_file(diagnosis, medications, treatment_plan, language)
-        st.audio(audio_file, format='audio/mp3')
+audio_file = generate_audio_file(diagnosis, medications, treatment_plan, language)
+st.audio(audio_file, format='audio/mp3')
 
-        # Generate PDF report
-        pdf = FPDF()
-        pdf.add_page()
-        pdf.set_font("Arial", style='B', size=16)
-        pdf.cell(200, 10, txt="Health Prediction Report", ln=True, align='C')
-        pdf.ln(10)
+# Generate PDF report
+pdf = FPDF()
+pdf.add_page()
+pdf.set_font("Arial", style='B', size=16)
+pdf.cell(200, 10, txt="Health Prediction Report", ln=True, align='C')
+pdf.ln(10)
         
-        pdf.set_font("Arial", size=12)
-        pdf.cell(200, 10, txt=f"Name: {name}", ln=True)
-        pdf.cell(200, 10, txt=f"Age: {age}", ln=True)
-        pdf.ln(5)
+pdf.set_font("Arial", size=12)
+pdf.cell(200, 10, txt=f"Name: {name}", ln=True)
+pdf.cell(200, 10, txt=f"Age: {age}", ln=True)
+pdf.ln(5)
         
-        pdf.set_font("Arial", style='B', size=12)
-        pdf.cell(200, 10, txt="Predicted Diagnosis:", ln=True)
-        pdf.set_font("Arial", size=12)
-        pdf.cell(200, 10, txt=f"{diagnosis}", ln=True)
-        pdf.ln(5)
+pdf.set_font("Arial", style='B', size=12)
+pdf.cell(200, 10, txt="Predicted Diagnosis:", ln=True)
+pdf.set_font("Arial", size=12)
+pdf.cell(200, 10, txt=f"{diagnosis}", ln=True)
+pdf.ln(5)
         
-        pdf.set_font("Arial", style='B', size=12)
-        pdf.cell(200, 10, txt="Predicted Medications:", ln=True)
-        pdf.set_font("Arial", size=12)
-        pdf.cell(200, 10, txt=f"{medications}", ln=True)
-        pdf.ln(5)
+pdf.set_font("Arial", style='B', size=12)
+pdf.cell(200, 10, txt="Predicted Medications:", ln=True)
+pdf.set_font("Arial", size=12)
+pdf.cell(200, 10, txt=f"{medications}", ln=True)
+pdf.ln(5)
         
-        pdf.set_font("Arial", style='B', size=12)
-        pdf.cell(200, 10, txt="Predicted Treatment Plan:", ln=True)
-        pdf.set_font("Arial", size=12)
-        pdf.multi_cell(0, 10, txt=f"{treatment_plan}")
-        pdf.ln(10)
+pdf.set_font("Arial", style='B', size=12)
+pdf.cell(200, 10, txt="Predicted Treatment Plan:", ln=True)
+pdf.set_font("Arial", size=12)
+pdf.multi_cell(0, 10, txt=f"{treatment_plan}")
+pdf.ln(10)
 
-        pdf_file = "health_prediction_report.pdf"
-        pdf.output(pdf_file)
+pdf_file = "health_prediction_report.pdf"
+pdf.output(pdf_file)
 
-        # Provide download link for the PDF
-        with open(pdf_file, "rb") as file:
-            st.download_button(
-                label="Download Health Report",
-                data=file,
-                file_name=pdf_file,
-                mime="application/pdf"
-            )
+# Provide download link for the PDF
+with open(pdf_file, "rb") as file:
+st.download_button(
+    label="Download Health Report",
+    data=file,
+    file_name=pdf_file,
+    mime="application/pdf"
+    )
+
