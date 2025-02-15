@@ -129,6 +129,13 @@ def generate_pdf_report(name, age, gender, diagnosis, medications, treatment_pla
     pdf.output("health_report.pdf")
     return "health_report.pdf"
 
+# Function to display PDF in the app
+def display_pdf(file_path):
+    with open(file_path, "rb") as f:
+        base64_pdf = base64.b64encode(f.read()).decode('utf-8')
+    pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="700" height="1000" type="application/pdf"></iframe>'
+    st.markdown(pdf_display, unsafe_allow_html=True)
+
 # Function to predict all outcomes
 def predict_all(age, gender_text, symptoms_selected, access_level_text, restricted_fields_text):
     input_data = pd.DataFrame(columns=X.columns, index=[0])
@@ -175,10 +182,17 @@ if st.button("Predict All"):
         if name:
             # Generate PDF report
             pdf_file = generate_pdf_report(name, age, gender_text, diagnosis, medications, treatment_plan)
+            
+            # Display PDF in the app
+            st.subheader("Health Report Preview")
+            display_pdf(pdf_file)
+
+            # Provide download button for the PDF
             with open(pdf_file, "rb") as f:
-                base64_pdf = base64.b64encode(f.read()).decode('utf-8')
-            pdf_display = f'<a href="data:application/pdf;base64,{base64_pdf}" download="health_report.pdf">Download PDF Report</a>'
-            st.markdown(pdf_display, unsafe_allow_html=True)
+                pdf_data = f.read()
+            b64 = base64.b64encode(pdf_data).decode()
+            href = f'<a href="data:application/pdf;base64,{b64}" download="health_report.pdf">Download PDF Report</a>'
+            st.markdown(href, unsafe_allow_html=True)
 
 if show_evaluation:
     st.subheader("Model Evaluation")
