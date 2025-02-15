@@ -252,7 +252,7 @@ if st.button(translate_text("predict_all", language)):
         # Provide download button for the PDF
         with open(pdf_file, "rb") as f:
             pdf_data = f.read()
-                b64 = base64.b64encode(pdf_data).decode()
+        b64 = base64.b64encode(pdf_data).decode()  # Corrected indentation
         href = f'<a href="data:application/pdf;base64,{b64}" download="health_report.pdf">{translate_text("download_report", language)}</a>'
         st.markdown(href, unsafe_allow_html=True)
 
