@@ -220,6 +220,11 @@ def generate_pdf_report(name, age, gender, symptoms=None, access_level=None, res
     pdf.cell(0, 10, f"Name: {name}", ln=True)
     pdf.cell(0, 10, f"Age: {age}", ln=True)
     pdf.cell(0, 10, f"Gender: {gender}", ln=True)
+    
+    # Add selected symptoms
+    if symptoms:
+        pdf.cell(0, 10, f"Selected Symptoms: {', '.join(symptoms)}", ln=True)
+    
     pdf.ln(10)
 
     # Add separator
@@ -280,7 +285,10 @@ if st.button(translate_text("predict_all", language)):
         st.subheader(translate_text("predicted_treatment_plan", language) + ": " + treatment_plan)
 
         # Generate PDF report
-        pdf_file = generate_pdf_report(name, age, gender_text, symptoms_selected, access_level_text, restricted_fields_text, diagnosis, medications, treatment_plan, language)
+        pdf_file = generate_pdf_report(
+            name, age, gender_text, symptoms_selected, access_level_text, restricted_fields_text, 
+            diagnosis, medications, treatment_plan, language
+        )
         
         # Provide download button for the PDF
         with open(pdf_file, "rb") as f:
