@@ -194,7 +194,7 @@ def generate_audio_file(diagnosis, medications, treatment_plan, lang):
     return "prediction.mp3"
 
 # Function to generate PDF report
-def generate_pdf_report(name, age, gender, symptoms, access_level, restricted_fields, diagnosis, medications, treatment_plan, language):
+def generate_pdf_report(name, age, gender, symptoms=None, access_level=None, restricted_fields=None, diagnosis="", medications="", treatment_plan="", language="en"):
     """Generates a PDF report containing the patient's details and predicted health outcomes."""
     
     class PDF(FPDF):
