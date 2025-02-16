@@ -221,9 +221,12 @@ def generate_pdf_report(name, age, gender, symptoms=None, access_level=None, res
     pdf.cell(0, 10, f"Age: {age}", ln=True)
     pdf.cell(0, 10, f"Gender: {gender}", ln=True)
     
-    # Add selected symptoms
+    # Add selected symptoms in chunks of 3 per line
     if symptoms:
-        pdf.cell(0, 10, f"Selected Symptoms: {', '.join(symptoms)}", ln=True)
+        pdf.cell(0, 10, "Selected Symptoms:", ln=True)
+        for i in range(0, len(symptoms), 3):  # Split symptoms into chunks of 3
+            symptom_chunk = symptoms[i:i + 3]  # Get 3 symptoms at a time
+            pdf.cell(0, 10, ", ".join(symptom_chunk), ln=True)
     
     pdf.ln(10)
 
