@@ -184,11 +184,7 @@ symptoms_selected = st.multiselect(translate_text("select_symptoms", language), 
 access_level_text = st.selectbox(translate_text("select_access_level", language), options=label_encoders['Access_Level'].inverse_transform(df['Access_Level'].unique()), index=0)
 restricted_fields_text = st.selectbox(translate_text("select_restricted_fields", language), options=label_encoders['Restricted_Fields'].inverse_transform(df['Restricted_Fields'].unique()), index=0)
 
-import os
-import base64
-import streamlit as st
-from gtts import gTTS
-
+# Function to generate audio file
 def generate_audio_file(diagnosis, medications, treatment_plan, lang):
     if lang == "English":
         text = f"Predicted Diagnosis: {diagnosis}. Recommended Medications: {medications}. Suggested Treatment Plan: {treatment_plan}."
@@ -196,45 +192,9 @@ def generate_audio_file(diagnosis, medications, treatment_plan, lang):
         text = f"అంచనా విధానం: {diagnosis}. సిఫార్సు చేసిన మందులు: {medications}. సూచించిన చికిత్స ప్రణాళిక: {treatment_plan}."
     elif lang == "Hindi":
         text = f"अनुमानित निदान: {diagnosis}. अनुशंसित दवाएं: {medications}. सुझाई गई उपचार योजना: {treatment_plan}."
-
     tts = gTTS(text=text, lang='en' if lang == "English" else 'hi' if lang == "Hindi" else 'te')
-    audio_file = os.path.abspath("prediction.mp3")
-    tts.save(audio_file)
-    return audio_file
-
-# Ensure 'translate_text' function is correctly defined before calling
-predict_button_label = translate_text("predict_all", language)
-
-# Use a unique key for the button
-if st.button(predict_button_label, key="predict_button"):
-    if not name:
-        st.warning(translate_text("enter_name", language))
-    else:
-        diagnosis, medications, treatment_plan = predict_all(age, gender_text, symptoms_selected, access_level_text, restricted_fields_text)
-        
-        st.subheader(f"{translate_text('predicted_diagnosis', language)}: {diagnosis}")
-        st.subheader(f"{translate_text('predicted_medications', language)}: {medications}")
-        st.subheader(f"{translate_text('predicted_treatment_plan', language)}: {treatment_plan}")
-
-        # Generate audio file
-        audio_file = generate_audio_file(diagnosis, medications, treatment_plan, language)
-
-        # Check if the file exists before displaying
-        if os.path.exists(audio_file):
-            with open(audio_file, "rb") as f:
-                st.audio(f.read(), format='audio/mp3')
-
-        # Generate PDF report
-        pdf_file = generate_pdf_report(name, age, gender_text, symptoms_selected, access_level_text, restricted_fields_text, 
-                                       diagnosis, medications, treatment_plan, language)
-
-        # Provide download button for the PDF
-        with open(pdf_file, "rb") as f:
-            pdf_data = f.read()
-
-        b64 = base64.b64encode(pdf_data).decode()
-        href = f'<a href="data:application/pdf;base64,{b64}" download="health_report.pdf">{translate_text("download_report", language)}</a>'
-        st.markdown(href, unsafe_allow_html=True)
+    tts.save("prediction.mp3")
+    return "prediction.mp3"
 
 # Function to generate PDF report
 def generate_pdf_report(name, age, gender, symptoms=None, access_level=None, restricted_fields=None, diagnosis="", medications="", treatment_plan="", language="en"):
