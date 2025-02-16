@@ -114,7 +114,7 @@ translations = {
         "show_evaluation_metrics": "మోడల్ మూల్యాంకన మెట్రిక్స్ చూపించు",
         "about": "గురించి",
         "info": "ఈ అనువర్తనం 'synthetic_health_data.csv' అనే కృత్రిమ డేటాసెట్ ఆధారంగా ఆరోగ్య ఫలితాలను అంచనా వేస్తుంది. ఇది కేవలం ఒక డెమోను.",
-        "warning": "సూచన: ఇది కృత్రిమ డేటాను ఉపయోగించి ఒక డెమోను. నిజమైన వైద్య నిర్ణయాలకు ఈ ఫలితాలను ఉపయోగించవద్దు. ఏదైనా వైద్య సలహా కోసం ఎల్లప్పుడూ ఒక ఆరోగ్య సంరక్షణ నిపుణుడిని సంప్రదించండి.",
+        "warning": "సూచన: ఇది కృత్రిమ డేటాను ఉపయోగించి ఒక డెమోను. నిజమైన వైద్య నిర్ణయాలకు ఈ ఫలితాలను ఉపయోగించవద్దు. ఏదైనా వైద్య సలహా కోసం ఎల్లప్పుడూ ఒక ఆరోగ్య సంరక్షణ నిపుణుడిని సంప్రదించండి.",
         "enter_age": "వయస్సును నమోదు చేయండి",
         "select_gender": "లింగాన్ని ఎంచుకోండి",
         "select_symptoms": "లక్షణాలను ఎంచుకోండి",
@@ -312,6 +312,7 @@ if st.button(translate_text("predict_all", language)):
         b64 = base64.b64encode(pdf_data).decode()
         href = f'<a href="data:application/pdf;base64,{b64}" download="health_report.pdf">{translate_text("download_report", language)}</a>'
         st.markdown(href, unsafe_allow_html=True)
+
 
 if show_evaluation:
     st.subheader(translate_text("model_evaluation", language))
