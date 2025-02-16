@@ -184,7 +184,8 @@ symptoms_selected = st.multiselect(translate_text("select_symptoms", language), 
 access_level_text = st.selectbox(translate_text("select_access_level", language), options=label_encoders['Access_Level'].inverse_transform(df['Access_Level'].unique()), index=0)
 restricted_fields_text = st.selectbox(translate_text("select_restricted_fields", language), options=label_encoders['Restricted_Fields'].inverse_transform(df['Restricted_Fields'].unique()), index=0)
 
-# Function to generate audio file
+import os
+
 def generate_audio_file(diagnosis, medications, treatment_plan, lang):
     if lang == "English":
         text = f"Predicted Diagnosis: {diagnosis}. Recommended Medications: {medications}. Suggested Treatment Plan: {treatment_plan}."
@@ -193,8 +194,46 @@ def generate_audio_file(diagnosis, medications, treatment_plan, lang):
     elif lang == "Hindi":
         text = f"अनुमानित निदान: {diagnosis}. अनुशंसित दवाएं: {medications}. सुझाई गई उपचार योजना: {treatment_plan}."
     tts = gTTS(text=text, lang='en' if lang == "English" else 'hi' if lang == "Hindi" else 'te')
-    tts.save("prediction.mp3")
-    return "prediction.mp3"
+    audio_file = os.path.abspath("prediction.mp3")  # Use absolute path
+    tts.save(audio_file)
+    print(f"Audio file generated: {audio_file}")  # Debug statement
+    return audio_file
+
+if st.button(translate_text("predict_all", language)):
+    if not name:
+        st.warning(translate_text("enter_name", language))
+    else:
+        diagnosis, medications, treatment_plan = predict_all(age, gender_text, symptoms_selected, access_level_text, restricted_fields_text)
+        st.subheader(translate_text("predicted_diagnosis", language) + ": " + diagnosis)
+        st.subheader(translate_text("predicted_medications", language) + ": " + medications)
+        st.subheader(translate_text("predicted_treatment_plan", language) + ": " + treatment_plan)
+
+        # Generate audio file
+        audio_file = generate_audio_file(diagnosis, medications, treatment_plan, language)
+        
+        # Debug: Check if the file exists and is readable
+        if os.path.exists(audio_file):
+            print(f"Audio file exists: {audio_file}")
+            with open(audio_file, "rb") as f:
+                print(f"File size: {len(f.read())} bytes")  # Check file size
+        else:
+            print(f"Audio file does not exist: {audio_file}")
+
+        # Display audio file
+        st.audio(audio_file, format='audio/mp3')
+
+        # Generate PDF report
+        pdf_file = generate_pdf_report(
+            name, age, gender_text, symptoms_selected, access_level_text, restricted_fields_text, 
+            diagnosis, medications, treatment_plan, language
+        )
+        
+        # Provide download button for the PDF
+        with open(pdf_file, "rb") as f:
+            pdf_data = f.read()
+        b64 = base64.b64encode(pdf_data).decode()
+        href = f'<a href="data:application/pdf;base64,{b64}" download="health_report.pdf">{translate_text("download_report", language)}</a>'
+        st.markdown(href, unsafe_allow_html=True)
 
 # Function to generate PDF report
 def generate_pdf_report(name, age, gender, symptoms=None, access_level=None, restricted_fields=None, diagnosis="", medications="", treatment_plan="", language="en"):
