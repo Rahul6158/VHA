@@ -202,7 +202,7 @@ def generate_pdf_report(name, age, gender, symptoms=None, access_level=None, res
     
     class PDF(FPDF):
         def header(self):
-            self.set_font("Arial", "B", 16)
+            self.set_font("Arial", "B", 16)  # Bold title
             self.cell(0, 10, "Comprehensive Health Outcome Predictor", ln=True, align="C")
             self.ln(10)
 
@@ -217,13 +217,18 @@ def generate_pdf_report(name, age, gender, symptoms=None, access_level=None, res
     pdf.set_font("Arial", "", 12)
 
     # Add patient details
+    pdf.set_font("Arial", "B", 12)  # Bold for headings
+    pdf.cell(0, 10, "Patient Details:", ln=True)
+    pdf.set_font("Arial", "", 12)  # Normal font for content
     pdf.cell(0, 10, f"Name: {name}", ln=True)
     pdf.cell(0, 10, f"Age: {age}", ln=True)
     pdf.cell(0, 10, f"Gender: {gender}", ln=True)
     
     # Add selected symptoms in chunks of 3 per line
     if symptoms:
+        pdf.set_font("Arial", "B", 12)  # Bold for heading
         pdf.cell(0, 10, "Selected Symptoms:", ln=True)
+        pdf.set_font("Arial", "", 12)  # Normal font for content
         for i in range(0, len(symptoms), 3):  # Split symptoms into chunks of 3
             symptom_chunk = symptoms[i:i + 3]  # Get 3 symptoms at a time
             pdf.cell(0, 10, ", ".join(symptom_chunk), ln=True)
@@ -234,6 +239,9 @@ def generate_pdf_report(name, age, gender, symptoms=None, access_level=None, res
     pdf.cell(0, 10, "-" * 40, ln=True)
 
     # Add predictions
+    pdf.set_font("Arial", "B", 12)  # Bold for heading
+    pdf.cell(0, 10, "Predicted Outcomes:", ln=True)
+    pdf.set_font("Arial", "", 12)  # Normal font for content
     pdf.cell(0, 10, f"Predicted Disease: {diagnosis}", ln=True)
     pdf.cell(0, 10, f"Predicted Medications: {medications}", ln=True)
     pdf.cell(0, 10, f"Predicted Treatment Plan: {treatment_plan}", ln=True)
