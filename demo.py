@@ -202,13 +202,13 @@ def generate_pdf_report(name, age, gender, symptoms=None, access_level=None, res
     class PDF(FPDF):
         def header(self):
             self.set_font("Arial", "B", 16)
-            self.cell(0, 10, translate_text("title", language), ln=True, align="C")
+            self.cell(0, 10, "Comprehensive Health Outcome Predictor", ln=True, align="C")
             self.ln(10)
 
         def footer(self):
             self.set_y(-15)
             self.set_font("Arial", "I", 8)
-            self.cell(0, 10, f"{translate_text('date', language)}: {datetime.date.today()}", align="C")
+            self.cell(0, 10, f"Date: {datetime.date.today()}", align="C")
 
     # Initialize PDF
     pdf = PDF()
@@ -251,10 +251,11 @@ def predict_all(age, gender_text, symptoms_selected, access_level_text, restrict
     input_data['Restricted_Fields'] = label_encoders['Restricted_Fields'].transform([restricted_fields_text])[0]
 
     for symptom in X.columns[5:]:
-        input_data[symptom] = 1 if symptom in symptoms_selected else 0
+        if symptom in symptoms_selected:
+            input_data[symptom] = 1
+        else:
+            input_data[symptom] = 0
     input_data = input_data.fillna(0)
-
-    print("Input Data:", input_data)
 
     input_data_scaled = scaler.transform(input_data)
 
@@ -262,17 +263,9 @@ def predict_all(age, gender_text, symptoms_selected, access_level_text, restrict
     predicted_medications_encoded = models['Medications'].predict(input_data_scaled)
     predicted_treatment_plan_encoded = models['Treatment_Plan'].predict(input_data_scaled)
 
-    print("Predicted Diagnosis (Encoded):", predicted_diagnosis_encoded)
-    print("Predicted Medications (Encoded):", predicted_medications_encoded)
-    print("Predicted Treatment Plan (Encoded):", predicted_treatment_plan_encoded)
-
     predicted_diagnosis = label_encoders['Diagnosis'].inverse_transform([predicted_diagnosis_encoded[0]])[0]
     predicted_medications = label_encoders['Medications'].inverse_transform([predicted_medications_encoded[0]])[0]
     predicted_treatment_plan = label_encoders['Treatment_Plan'].inverse_transform([predicted_treatment_plan_encoded[0]])[0]
-
-    print("Decoded Diagnosis:", predicted_diagnosis)
-    print("Decoded Medications:", predicted_medications)
-    print("Decoded Treatment Plan:", predicted_treatment_plan)
 
     return predicted_diagnosis, predicted_medications, predicted_treatment_plan
 
@@ -285,12 +278,8 @@ if st.button(translate_text("predict_all", language)):
         st.subheader(translate_text("predicted_medications", language) + ": " + medications)
         st.subheader(translate_text("predicted_treatment_plan", language) + ": " + treatment_plan)
 
-        # Generate audio file
-        audio_file = generate_audio_file(diagnosis, medications, treatment_plan, language)
-        st.audio(audio_file, format='audio/mp3')
-
         # Generate PDF report
-        pdf_file = generate_pdf_report(name, age, gender_text, diagnosis, medications, treatment_plan, language)
+        pdf_file = generate_pdf_report(name, age, gender_text, symptoms_selected, access_level_text, restricted_fields_text, diagnosis, medications, treatment_plan, language)
         
         # Provide download button for the PDF
         with open(pdf_file, "rb") as f:
