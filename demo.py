@@ -201,8 +201,8 @@ def generate_pdf_report(name, age, gender, symptoms=None, access_level=None, res
     
     class PDF(FPDF):
         def header(self):
-            self.set_font("Arial", "B", 12)
-            self.cell(200, 10, translate_text("title", language), ln=True, align="C")
+            self.set_font("Arial", "B", 16)
+            self.cell(0, 10, translate_text("title", language), ln=True, align="C")
             self.ln(10)
 
         def footer(self):
@@ -216,30 +216,32 @@ def generate_pdf_report(name, age, gender, symptoms=None, access_level=None, res
     pdf.set_font("Arial", "", 12)
 
     # Add patient details
-    pdf.cell(200, 10, f"{translate_text('enter_name', language)}: {name}", ln=True)
-    pdf.cell(200, 10, f"{translate_text('enter_age', language)}: {age}", ln=True)
-    pdf.cell(200, 10, f"{translate_text('select_gender', language)}: {gender}", ln=True)
-    pdf.cell(200, 10, f"{translate_text('select_symptoms', language)}: {', '.join(symptoms)}", ln=True)
-    pdf.cell(200, 10, f"{translate_text('select_access_level', language)}: {access_level}", ln=True)
-    pdf.cell(200, 10, f"{translate_text('select_restricted_fields', language)}: {restricted_fields}", ln=True)
+    pdf.cell(0, 10, f"Name: {name}", ln=True)
+    pdf.cell(0, 10, f"Age: {age}", ln=True)
+    pdf.cell(0, 10, f"Gender: {gender}", ln=True)
+    pdf.ln(10)
+
+    # Add separator
+    pdf.cell(0, 10, "-" * 40, ln=True)
 
     # Add predictions
+    pdf.cell(0, 10, f"Predicted Disease: {diagnosis}", ln=True)
+    pdf.cell(0, 10, f"Predicted Medications: {medications}", ln=True)
+    pdf.cell(0, 10, f"Predicted Treatment Plan: {treatment_plan}", ln=True)
+
+    # Add separator
+    pdf.cell(0, 10, "-" * 40, ln=True)
     pdf.ln(5)
-    pdf.set_font("Arial", "B", 12)
-    pdf.cell(200, 10, translate_text("predict_all", language), ln=True)
-    pdf.set_font("Arial", "", 12)
-    
-    pdf.cell(200, 10, f"{translate_text('predicted_diagnosis', language)}: {diagnosis}", ln=True)
-    pdf.cell(200, 10, f"{translate_text('predicted_medications', language)}: {medications}", ln=True)
-    pdf.cell(200, 10, f"{translate_text('predicted_treatment_plan', language)}: {treatment_plan}", ln=True)
+
+    # Add note
+    pdf.set_font("Arial", "I", 10)
+    pdf.multi_cell(0, 10, "Note: This is a predicted result. Please consult a healthcare professional for an accurate diagnosis and treatment.")
 
     # Save PDF
     pdf_filename = f"Health_Report_{name.replace(' ', '_')}.pdf"
     pdf.output(pdf_filename)
 
     return pdf_filename
-
-
 # Function to predict all outcomes
 def predict_all(age, gender_text, symptoms_selected, access_level_text, restricted_fields_text):
     input_data = pd.DataFrame(columns=X.columns, index=[0])
