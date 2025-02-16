@@ -223,7 +223,9 @@ def generate_pdf_report(name, age, gender, symptoms=None, access_level=None, res
     pdf.cell(0, 10, f"Name: {name}", ln=True)
     pdf.cell(0, 10, f"Age: {age}", ln=True)
     pdf.cell(0, 10, f"Gender: {gender}", ln=True)
-    
+
+    pdf.cell(0, 10, "-" * 40, ln=True)
+    pdf.ln(5)
     # Add selected symptoms in chunks of 3 per line
     if symptoms:
         pdf.set_font("Arial", "B", 12)  # Bold for heading
@@ -247,7 +249,7 @@ def generate_pdf_report(name, age, gender, symptoms=None, access_level=None, res
     pdf.cell(0, 10, f"Predicted Treatment Plan: {treatment_plan}", ln=True)
 
     # Add separator
-    pdf.cell(0, 10, "-" * 40, ln=True)
+    pdf.cell(0, 10, "-" * 90, ln=True)
     pdf.ln(5)
 
     # Add note
