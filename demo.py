@@ -158,8 +158,14 @@ translations = {
     }
 }
 
-def translate_text(key, lang):
-    return translations[lang].get(key, key)
+def translate_text(key, lang="en"):
+    # Ensure 'translations' dictionary has English as a fallback
+    if lang not in translations:
+        print(f"Warning: '{lang}' is not available. Defaulting to English.")
+        lang = "en"  # Default to English if the language is not found
+    
+    return translations.get(lang, translations["en"]).get(key, key)  # Defaults to English
+
 
 # Streamlit app
 st.title(translate_text("title", language))
