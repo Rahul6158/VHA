@@ -297,6 +297,10 @@ if st.button(translate_text("predict_all", language)):
         st.subheader(translate_text("predicted_medications", language) + ": " + medications)
         st.subheader(translate_text("predicted_treatment_plan", language) + ": " + treatment_plan)
 
+        # Generate audio file
+        audio_file = generate_audio_file(diagnosis, medications, treatment_plan, language)
+        st.audio(audio_file, format='audio/mp3')
+
         # Generate PDF report
         pdf_file = generate_pdf_report(
             name, age, gender_text, symptoms_selected, access_level_text, restricted_fields_text, 
