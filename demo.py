@@ -194,30 +194,49 @@ def generate_audio_file(diagnosis, medications, treatment_plan, lang):
     return "prediction.mp3"
 
 # Function to generate PDF report
-def generate_pdf_report(name, age, gender, diagnosis, medications, treatment_plan, lang):
-    pdf = FPDF()
+def generate_pdf_report(name, age, gender, symptoms, access_level, restricted_fields, diagnosis, medications, treatment_plan, language):
+    """Generates a PDF report containing the patient's details and predicted health outcomes."""
+    
+    class PDF(FPDF):
+        def header(self):
+            self.set_font("Arial", "B", 12)
+            self.cell(200, 10, translate_text("title", language), ln=True, align="C")
+            self.ln(10)
+
+        def footer(self):
+            self.set_y(-15)
+            self.set_font("Arial", "I", 8)
+            self.cell(0, 10, f"{translate_text('date', language)}: {datetime.date.today()}", align="C")
+
+    # Initialize PDF
+    pdf = PDF()
     pdf.add_page()
-    pdf.set_font("Arial", size=12)
-    
-    # Add title
-    pdf.cell(200, 10, txt=translate_text("title", lang), ln=True, align='C')
-    
-    # Add user details
-    pdf.cell(200, 10, txt=f"{translate_text('enter_name', lang)}: {name}", ln=True, align='L')
-    pdf.cell(200, 10, txt=f"{translate_text('enter_age', lang)}: {age}", ln=True, align='L')
-    pdf.cell(200, 10, txt=f"{translate_text('select_gender', lang)}: {gender}", ln=True, align='L')
-    
+    pdf.set_font("Arial", "", 12)
+
+    # Add patient details
+    pdf.cell(200, 10, f"{translate_text('enter_name', language)}: {name}", ln=True)
+    pdf.cell(200, 10, f"{translate_text('enter_age', language)}: {age}", ln=True)
+    pdf.cell(200, 10, f"{translate_text('select_gender', language)}: {gender}", ln=True)
+    pdf.cell(200, 10, f"{translate_text('select_symptoms', language)}: {', '.join(symptoms)}", ln=True)
+    pdf.cell(200, 10, f"{translate_text('select_access_level', language)}: {access_level}", ln=True)
+    pdf.cell(200, 10, f"{translate_text('select_restricted_fields', language)}: {restricted_fields}", ln=True)
+
     # Add predictions
-    pdf.cell(200, 10, txt=f"{translate_text('predicted_diagnosis', lang)}: {diagnosis}", ln=True, align='L')
-    pdf.cell(200, 10, txt=f"{translate_text('predicted_medications', lang)}: {medications}", ln=True, align='L')
-    pdf.cell(200, 10, txt=f"{translate_text('predicted_treatment_plan', lang)}: {treatment_plan}", ln=True, align='L')
+    pdf.ln(5)
+    pdf.set_font("Arial", "B", 12)
+    pdf.cell(200, 10, translate_text("predict_all", language), ln=True)
+    pdf.set_font("Arial", "", 12)
     
-    # Add date
-    pdf.cell(200, 10, txt=f"{translate_text('date', lang)}: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", ln=True, align='L')
-    
-    # Save the PDF
-    pdf.output("health_report.pdf")
-    return "health_report.pdf"
+    pdf.cell(200, 10, f"{translate_text('predicted_diagnosis', language)}: {diagnosis}", ln=True)
+    pdf.cell(200, 10, f"{translate_text('predicted_medications', language)}: {medications}", ln=True)
+    pdf.cell(200, 10, f"{translate_text('predicted_treatment_plan', language)}: {treatment_plan}", ln=True)
+
+    # Save PDF
+    pdf_filename = f"Health_Report_{name.replace(' ', '_')}.pdf"
+    pdf.output(pdf_filename)
+
+    return pdf_filename
+
 
 # Function to predict all outcomes
 def predict_all(age, gender_text, symptoms_selected, access_level_text, restricted_fields_text):
