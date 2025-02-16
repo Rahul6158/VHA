@@ -195,54 +195,7 @@ def generate_audio_file(diagnosis, medications, treatment_plan, lang):
     tts.save("prediction.mp3")
     return "prediction.mp3"
 
-# Function to generate PDF report
-def generate_pdf_report(name, age, gender, symptoms=None, access_level=None, restricted_fields=None, diagnosis="", medications="", treatment_plan="", language="en"):
-    """Generates a PDF report containing the patient's details and predicted health outcomes."""
-    
-    class PDF(FPDF):
-        def header(self):
-            self.set_font("Arial", "B", 16)
-            self.cell(0, 10, "Comprehensive Health Outcome Predictor", ln=True, align="C")
-            self.ln(10)
 
-        def footer(self):
-            self.set_y(-15)
-            self.set_font("Arial", "I", 8)
-            self.cell(0, 10, f"Date: {datetime.date.today()}", align="C")
-
-    # Initialize PDF
-    pdf = PDF()
-    pdf.add_page()
-    pdf.set_font("Arial", "", 12)
-
-    # Add patient details
-    pdf.cell(0, 10, f"Name: {name}", ln=True)
-    pdf.cell(0, 10, f"Age: {age}", ln=True)
-    pdf.cell(0, 10, f"Gender: {gender}", ln=True)
-    pdf.ln(10)
-
-    # Add separator
-    pdf.cell(0, 10, "-" * 40, ln=True)
-
-    # Add predictions
-    pdf.cell(0, 10, f"Predicted Disease: {diagnosis}", ln=True)
-    pdf.cell(0, 10, f"Predicted Medications: {medications}", ln=True)
-    pdf.cell(0, 10, f"Predicted Treatment Plan: {treatment_plan}", ln=True)
-
-    # Add separator
-    pdf.cell(0, 10, "-" * 40, ln=True)
-    pdf.ln(5)
-
-    # Add note
-    pdf.set_font("Arial", "I", 10)
-    pdf.multi_cell(0, 10, "Note: This is a predicted result. Please consult a healthcare professional for an accurate diagnosis and treatment.")
-
-    # Save PDF
-    pdf_filename = f"Health_Report_{name.replace(' ', '_')}.pdf"
-    pdf.output(pdf_filename)
-
-    return pdf_filename
-    
 def generate_pdf_report(name, age, gender, symptoms=None, access_level=None, restricted_fields=None, diagnosis="", medications="", treatment_plan="", language="en"):
     """Generates a PDF report containing the patient's details and predicted health outcomes."""
     
