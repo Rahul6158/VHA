@@ -242,7 +242,7 @@ def generate_pdf_report(name, age, gender, symptoms=None, access_level=None, res
     pdf.output(pdf_filename)
 
     return pdf_filename
-# Function to predict all outcomes
+    
 def predict_all(age, gender_text, symptoms_selected, access_level_text, restricted_fields_text):
     input_data = pd.DataFrame(columns=X.columns, index=[0])
     input_data['Age'] = age
@@ -251,11 +251,10 @@ def predict_all(age, gender_text, symptoms_selected, access_level_text, restrict
     input_data['Restricted_Fields'] = label_encoders['Restricted_Fields'].transform([restricted_fields_text])[0]
 
     for symptom in X.columns[5:]:
-        if symptom in symptoms_selected:
-            input_data[symptom] = 1
-        else:
-            input_data[symptom] = 0
+        input_data[symptom] = 1 if symptom in symptoms_selected else 0
     input_data = input_data.fillna(0)
+
+    print("Input Data:", input_data)
 
     input_data_scaled = scaler.transform(input_data)
 
@@ -263,9 +262,17 @@ def predict_all(age, gender_text, symptoms_selected, access_level_text, restrict
     predicted_medications_encoded = models['Medications'].predict(input_data_scaled)
     predicted_treatment_plan_encoded = models['Treatment_Plan'].predict(input_data_scaled)
 
+    print("Predicted Diagnosis (Encoded):", predicted_diagnosis_encoded)
+    print("Predicted Medications (Encoded):", predicted_medications_encoded)
+    print("Predicted Treatment Plan (Encoded):", predicted_treatment_plan_encoded)
+
     predicted_diagnosis = label_encoders['Diagnosis'].inverse_transform([predicted_diagnosis_encoded[0]])[0]
     predicted_medications = label_encoders['Medications'].inverse_transform([predicted_medications_encoded[0]])[0]
     predicted_treatment_plan = label_encoders['Treatment_Plan'].inverse_transform([predicted_treatment_plan_encoded[0]])[0]
+
+    print("Decoded Diagnosis:", predicted_diagnosis)
+    print("Decoded Medications:", predicted_medications)
+    print("Decoded Treatment Plan:", predicted_treatment_plan)
 
     return predicted_diagnosis, predicted_medications, predicted_treatment_plan
 
