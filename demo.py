@@ -1,3 +1,4 @@
+
 import streamlit as st
 import pandas as pd
 from sklearn.model_selection import train_test_split, GridSearchCV
@@ -195,7 +196,7 @@ def generate_audio_file(diagnosis, medications, treatment_plan, lang):
     tts.save("prediction.mp3")
     return "prediction.mp3"
 
-
+# Function to generate PDF report
 def generate_pdf_report(name, age, gender, symptoms=None, access_level=None, restricted_fields=None, diagnosis="", medications="", treatment_plan="", language="en"):
     """Generates a PDF report containing the patient's details and predicted health outcomes."""
     
@@ -219,11 +220,6 @@ def generate_pdf_report(name, age, gender, symptoms=None, access_level=None, res
     pdf.cell(0, 10, f"Name: {name}", ln=True)
     pdf.cell(0, 10, f"Age: {age}", ln=True)
     pdf.cell(0, 10, f"Gender: {gender}", ln=True)
-    
-    # Add selected symptoms
-    if symptoms:
-        pdf.cell(0, 10, f"Selected Symptoms: {', '.join(symptoms)}", ln=True)
-    
     pdf.ln(10)
 
     # Add separator
@@ -247,6 +243,32 @@ def generate_pdf_report(name, age, gender, symptoms=None, access_level=None, res
     pdf.output(pdf_filename)
 
     return pdf_filename
+    
+def predict_all(age, gender_text, symptoms_selected, access_level_text, restricted_fields_text):
+    input_data = pd.DataFrame(columns=X.columns, index=[0])
+    input_data['Age'] = age
+    input_data['Gender'] = label_encoders['Gender'].transform([gender_text])[0]
+    input_data['Access_Level'] = label_encoders['Access_Level'].transform([access_level_text])[0]
+    input_data['Restricted_Fields'] = label_encoders['Restricted_Fields'].transform([restricted_fields_text])[0]
+
+    for symptom in X.columns[5:]:
+        if symptom in symptoms_selected:
+            input_data[symptom] = 1
+        else:
+            input_data[symptom] = 0
+    input_data = input_data.fillna(0)
+
+    input_data_scaled = scaler.transform(input_data)
+
+    predicted_diagnosis_encoded = models['Diagnosis'].predict(input_data_scaled)
+    predicted_medications_encoded = models['Medications'].predict(input_data_scaled)
+    predicted_treatment_plan_encoded = models['Treatment_Plan'].predict(input_data_scaled)
+
+    predicted_diagnosis = label_encoders['Diagnosis'].inverse_transform([predicted_diagnosis_encoded[0]])[0]
+    predicted_medications = label_encoders['Medications'].inverse_transform([predicted_medications_encoded[0]])[0]
+    predicted_treatment_plan = label_encoders['Treatment_Plan'].inverse_transform([predicted_treatment_plan_encoded[0]])[0]
+
+    return predicted_diagnosis, predicted_medications, predicted_treatment_plan
 
 if st.button(translate_text("predict_all", language)):
     if not name:
