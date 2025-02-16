@@ -243,31 +243,57 @@ def generate_pdf_report(name, age, gender, symptoms=None, access_level=None, res
 
     return pdf_filename
     
-def predict_all(age, gender_text, symptoms_selected, access_level_text, restricted_fields_text):
-    input_data = pd.DataFrame(columns=X.columns, index=[0])
-    input_data['Age'] = age
-    input_data['Gender'] = label_encoders['Gender'].transform([gender_text])[0]
-    input_data['Access_Level'] = label_encoders['Access_Level'].transform([access_level_text])[0]
-    input_data['Restricted_Fields'] = label_encoders['Restricted_Fields'].transform([restricted_fields_text])[0]
+def generate_pdf_report(name, age, gender, symptoms=None, access_level=None, restricted_fields=None, diagnosis="", medications="", treatment_plan="", language="en"):
+    """Generates a PDF report containing the patient's details and predicted health outcomes."""
+    
+    class PDF(FPDF):
+        def header(self):
+            self.set_font("Arial", "B", 16)
+            self.cell(0, 10, "Comprehensive Health Outcome Predictor", ln=True, align="C")
+            self.ln(10)
 
-    for symptom in X.columns[5:]:
-        if symptom in symptoms_selected:
-            input_data[symptom] = 1
-        else:
-            input_data[symptom] = 0
-    input_data = input_data.fillna(0)
+        def footer(self):
+            self.set_y(-15)
+            self.set_font("Arial", "I", 8)
+            self.cell(0, 10, f"Date: {datetime.date.today()}", align="C")
 
-    input_data_scaled = scaler.transform(input_data)
+    # Initialize PDF
+    pdf = PDF()
+    pdf.add_page()
+    pdf.set_font("Arial", "", 12)
 
-    predicted_diagnosis_encoded = models['Diagnosis'].predict(input_data_scaled)
-    predicted_medications_encoded = models['Medications'].predict(input_data_scaled)
-    predicted_treatment_plan_encoded = models['Treatment_Plan'].predict(input_data_scaled)
+    # Add patient details
+    pdf.cell(0, 10, f"Name: {name}", ln=True)
+    pdf.cell(0, 10, f"Age: {age}", ln=True)
+    pdf.cell(0, 10, f"Gender: {gender}", ln=True)
+    
+    # Add selected symptoms
+    if symptoms:
+        pdf.cell(0, 10, f"Selected Symptoms: {', '.join(symptoms)}", ln=True)
+    
+    pdf.ln(10)
 
-    predicted_diagnosis = label_encoders['Diagnosis'].inverse_transform([predicted_diagnosis_encoded[0]])[0]
-    predicted_medications = label_encoders['Medications'].inverse_transform([predicted_medications_encoded[0]])[0]
-    predicted_treatment_plan = label_encoders['Treatment_Plan'].inverse_transform([predicted_treatment_plan_encoded[0]])[0]
+    # Add separator
+    pdf.cell(0, 10, "-" * 40, ln=True)
 
-    return predicted_diagnosis, predicted_medications, predicted_treatment_plan
+    # Add predictions
+    pdf.cell(0, 10, f"Predicted Disease: {diagnosis}", ln=True)
+    pdf.cell(0, 10, f"Predicted Medications: {medications}", ln=True)
+    pdf.cell(0, 10, f"Predicted Treatment Plan: {treatment_plan}", ln=True)
+
+    # Add separator
+    pdf.cell(0, 10, "-" * 40, ln=True)
+    pdf.ln(5)
+
+    # Add note
+    pdf.set_font("Arial", "I", 10)
+    pdf.multi_cell(0, 10, "Note: This is a predicted result. Please consult a healthcare professional for an accurate diagnosis and treatment.")
+
+    # Save PDF
+    pdf_filename = f"Health_Report_{name.replace(' ', '_')}.pdf"
+    pdf.output(pdf_filename)
+
+    return pdf_filename
 
 if st.button(translate_text("predict_all", language)):
     if not name:
